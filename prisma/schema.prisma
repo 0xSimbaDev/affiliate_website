@@ -1,0 +1,287 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ArticleType {
+  ROUNDUP        // "Best X of 2025" - links multiple products
+  REVIEW         // Single product in-depth review
+  COMPARISON     // Product vs Product
+  BUYING_GUIDE   // How to choose the right X
+  HOW_TO         // Tutorial/instructional content
+}
+
+// ============================================================================
+// NICHE - Top-level configuration for each vertical
+// ============================================================================
+
+model Niche {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  description   String?
+  productTypes  Json     // Array of product types for this niche
+  categoryTypes Json     // Array of category types for this niche
+  partners      Json     // Affiliate partner configurations
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sites Site[]
+
+  @@map("niches")
+}
+
+// ============================================================================
+// SITE - Individual affiliate site within a niche
+// ============================================================================
+
+model Site {
+  id          String  @id @default(cuid())
+  nicheId     String
+  slug        String  @unique
+  name        String
+  domain      String  @unique
+  tagline     String?
+  description String?
+  theme       Json    // Theme configuration (colors, fonts, etc.)
+  social      Json?   // Social media links
+  gtmId       String? // Google Tag Manager ID
+  cdnBaseUrl  String? // CDN base URL for assets
+  contentSlug String  @default("reviews") // URL slug for content section (e.g., "reviews", "articles", "guides", "blog")
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  niche             Niche             @relation(fields: [nicheId], references: [id], onDelete: Cascade)
+  products          Product[]
+  categories        Category[]
+  articleCategories ArticleCategory[]
+  articles          Article[]
+
+  @@index([nicheId])
+  @@map("sites")
+}
+
+// ============================================================================
+// PRODUCT - Generic product/service entity
+// ============================================================================
+
+model Product {
+  id                  String        @id @default(cuid())
+  siteId              String
+  productType         String        // Type of product (varies by niche)
+  slug                String
+  title               String
+  excerpt             String?
+  description         String?       @db.Text
+  content             String?       @db.Text
+  featuredImage       String?
+  galleryImages       String[]      // Array of image URLs
+  priceFrom           Decimal?      @db.Decimal(10, 2)
+  priceTo             Decimal?      @db.Decimal(10, 2)
+  priceCurrency       String?       @default("USD")
+  priceText           String?       // Human-readable price text (e.g., "From $99/night")
+  rating              Decimal?      @db.Decimal(3, 2) // 0.00 to 5.00
+  reviewCount         Int?          @default(0)
+  affiliateLinks      Json?         // Array of affiliate link objects
+  primaryAffiliateUrl String?
+  seoTitle            String?
+  seoDescription      String?
+  seoKeywords         String[]
+  metadata            Json?         // Flexible metadata storage
+  status              ContentStatus @default(DRAFT)
+  isFeatured          Boolean       @default(false)
+  isActive            Boolean       @default(true)
+  sortOrder           Int           @default(0)
+  publishedAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  site       Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  categories ProductCategory[]
+  articles   ArticleProduct[]
+
+  @@unique([siteId, slug])
+  @@index([siteId, productType])
+  @@index([siteId, status, isActive])
+  @@index([siteId, isFeatured])
+  @@map("products")
+}
+
+// ============================================================================
+// CATEGORY - Flexible categorization system
+// ============================================================================
+
+model Category {
+  id            String  @id @default(cuid())
+  siteId        String
+  categoryType  String  // Type of category (varies by niche)
+  parentId      String? // Self-reference for hierarchical categories
+  slug          String
+  name          String
+  description   String? @db.Text
+  content       String? @db.Text
+  icon          String?
+  featuredImage String?
+  seoTitle      String?
+  seoDescription String?
+  seoKeywords   String[]
+  metadata      Json?
+  isActive      Boolean @default(true)
+  sortOrder     Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  site     Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parent   Category?         @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[]        @relation("CategoryHierarchy")
+  products ProductCategory[]
+  articles Article[]
+
+  @@unique([siteId, categoryType, slug])
+  @@index([siteId, categoryType])
+  @@index([siteId, parentId])
+  @@map("categories")
+}
+
+// ============================================================================
+// ARTICLE_CATEGORY - Separate category system for articles
+// ============================================================================
+
+model ArticleCategory {
+  id             String  @id @default(cuid())
+  siteId         String
+  parentId       String? // Self-reference for hierarchical categories
+  slug           String
+  name           String
+  description    String? @db.Text
+  icon           String?
+  featuredImage  String?
+  seoTitle       String?
+  seoDescription String?
+  isActive       Boolean @default(true)
+  sortOrder      Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  site     Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parent   ArticleCategory?  @relation("ArticleCategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children ArticleCategory[] @relation("ArticleCategoryHierarchy")
+  articles Article[]
+
+  @@unique([siteId, slug])
+  @@index([siteId, parentId])
+  @@map("article_categories")
+}
+
+// ============================================================================
+// PRODUCT_CATEGORY - Many-to-many join table
+// ============================================================================
+
+model ProductCategory {
+  id         String  @id @default(cuid())
+  productId  String
+  categoryId String
+  isPrimary  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, categoryId])
+  @@index([categoryId])
+  @@map("product_categories")
+}
+
+// ============================================================================
+// ARTICLE - Reviews, roundups, and editorial content
+// ============================================================================
+
+model Article {
+  id                String        @id @default(cuid())
+  siteId            String
+  articleCategoryId String?       // NEW: Link to ArticleCategory
+  categoryId        String?       // DEPRECATED: Keep for migration, then remove
+  articleType       ArticleType   @default(ROUNDUP)
+  slug              String
+  title             String
+  excerpt           String?
+  content           String?       @db.Text
+  featuredImage     String?
+  faqs              Json?         // Array of FAQ objects {question, answer}
+  author            String?       // Author name (for future user relation)
+  seoTitle          String?
+  seoDescription    String?
+  seoKeywords       String[]
+  status            ContentStatus @default(DRAFT)
+  isFeatured        Boolean       @default(false)
+  publishedAt       DateTime?
+  viewCount         Int           @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  site            Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  articleCategory ArticleCategory? @relation(fields: [articleCategoryId], references: [id], onDelete: SetNull)
+  category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull) // DEPRECATED
+  products        ArticleProduct[]
+
+  @@unique([siteId, slug])
+  @@index([siteId, status])
+  @@index([siteId, articleCategoryId])
+  @@index([siteId, categoryId])
+  @@index([siteId, articleType])
+  @@index([siteId, isFeatured])
+  @@map("articles")
+}
+
+// ============================================================================
+// ARTICLE_PRODUCT - Many-to-many join table for articles and products
+// ============================================================================
+
+model ArticleProduct {
+  id         String  @id @default(cuid())
+  articleId  String
+  productId  String
+  position   Int     @default(0)  // Order of product in article (for roundups)
+  highlight  String? // Short highlight text for this product in the article
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, productId])
+  @@index([productId])
+  @@map("article_products")
+}

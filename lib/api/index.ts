@@ -52,4 +52,8 @@ export {
   getArticleCategoryBySlug,
   getArticlesByCategorySlug,
   getArticleCategories,
+  getArticlesByProductId,
 } from './articles'
+
+// Article types
+export type { ArticleWithProductContext } from './articles'

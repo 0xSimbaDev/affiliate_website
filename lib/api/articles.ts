@@ -750,6 +750,94 @@ export const getArticlesByCategorySlug = cache(
 )
 
 /**
+ * Article data with context from ArticleProduct join table.
+ */
+export interface ArticleWithProductContext {
+  id: string
+  slug: string
+  title: string
+  excerpt: string | null
+  articleType: ArticleType
+  featuredImage: string | null
+  author: string | null
+  publishedAt: Date | null
+  isFeatured: boolean
+  articleCategory: {
+    id: string
+    slug: string
+    name: string
+    description: string | null
+  } | null
+  /** Product context from join table */
+  highlight: string | null
+  position: number
+}
+
+/**
+ * Get articles that feature a specific product.
+ * Used on product detail pages for internal linking.
+ *
+ * @param siteId - The site ID
+ * @param productId - The product ID to find articles for
+ * @param limit - Maximum number of articles to return (default: 4)
+ * @returns Array of articles with highlight/position context
+ *
+ * @example
+ * const articles = await getArticlesByProductId(siteId, productId)
+ */
+export const getArticlesByProductId = cache(
+  async (
+    siteId: string,
+    productId: string,
+    limit: number = 4
+  ): Promise<ArticleWithProductContext[]> => {
+    const articleProducts = await prisma.articleProduct.findMany({
+      where: {
+        productId,
+        article: {
+          siteId,
+          status: 'PUBLISHED',
+        },
+      },
+      include: {
+        article: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            excerpt: true,
+            articleType: true,
+            featuredImage: true,
+            author: true,
+            publishedAt: true,
+            isFeatured: true,
+            articleCategory: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [
+        { article: { isFeatured: 'desc' } },
+        { article: { publishedAt: 'desc' } },
+      ],
+      take: limit,
+    })
+
+    return articleProducts.map((ap) => ({
+      ...ap.article,
+      highlight: ap.highlight,
+      position: ap.position,
+    }))
+  }
+)
+
+/**
  * Get all article categories that have articles for a site.
  * Used for filter chips/tabs on article listing pages.
  *

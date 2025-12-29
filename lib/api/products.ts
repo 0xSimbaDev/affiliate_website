@@ -123,7 +123,7 @@ export const getProducts = cache(
  *
  * @param siteId - The site ID
  * @param slug - The product's URL-safe slug
- * @returns The full product with categories, or null if not found
+ * @returns The full product with categories and affiliate links, or null if not found
  *
  * @example
  * const product = await getProductBySlug(siteId, 'luxury-hotel-paris')
@@ -152,7 +152,21 @@ export const getProductBySlug = cache(
 
     if (!product) return null
 
-    return product as unknown as ProductWithCategories
+    // Parse affiliateLinks JSON field if it's stored as string
+    const affiliateLinks = product.affiliateLinks
+      ? (typeof product.affiliateLinks === 'string'
+          ? JSON.parse(product.affiliateLinks)
+          : product.affiliateLinks)
+      : null
+
+    return {
+      ...product,
+      affiliateLinks,
+      // Convert Decimal fields to numbers
+      priceFrom: product.priceFrom?.toNumber() ?? null,
+      priceTo: product.priceTo?.toNumber() ?? null,
+      rating: product.rating?.toNumber() ?? null,
+    } as unknown as ProductWithCategories
   }
 )
 

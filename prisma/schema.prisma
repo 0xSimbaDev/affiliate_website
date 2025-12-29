@@ -39,6 +39,7 @@ model Niche {
   productTypes  Json     // Array of product types for this niche
   categoryTypes Json     // Array of category types for this niche
   partners      Json     // Affiliate partner configurations
+  layoutConfig  Json?    // Product page layout configuration
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

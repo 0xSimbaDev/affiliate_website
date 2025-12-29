@@ -8,6 +8,8 @@ interface StickyBuyBarProps {
   productName: string
   price: string | null
   affiliateUrl: string
+  ctaText?: string
+  partner?: string
   className?: string
 }
 
@@ -24,6 +26,8 @@ export default function StickyBuyBar({
   productName,
   price,
   affiliateUrl,
+  ctaText = 'Check Price',
+  partner,
   className,
 }: StickyBuyBarProps) {
   const [isVisible, setIsVisible] = useState(false)
@@ -77,6 +81,7 @@ export default function StickyBuyBar({
           {/* CTA Button */}
           <AffiliateLink
             href={affiliateUrl}
+            partner={partner}
             className={cn(
               'inline-flex items-center justify-center gap-2',
               'px-6 py-3 rounded-xl',
@@ -87,7 +92,7 @@ export default function StickyBuyBar({
               'whitespace-nowrap flex-shrink-0'
             )}
           >
-            Check Price
+            {ctaText}
             <svg
               className="w-4 h-4"
               fill="none"

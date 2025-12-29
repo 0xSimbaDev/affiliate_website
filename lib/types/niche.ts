@@ -6,6 +6,13 @@
  */
 
 /**
+ * Layout configuration type for product pages (JSON structure).
+ * This is what's stored in the database and returned by Prisma.
+ * The full typed version is in lib/layouts/product/types.ts
+ */
+export type NicheLayoutConfigJson = Record<string, unknown> | null
+
+/**
  * Definition for a product type within a niche.
  * Product types categorize different kinds of products/services.
  *
@@ -74,6 +81,8 @@ export interface NicheConfig {
   categoryTypes: CategoryTypeDefinition[]
   /** Configured affiliate partners */
   partners: AffiliatePartner[]
+  /** Product page layout configuration (JSON from database) */
+  layoutConfig?: NicheLayoutConfigJson
   /** Creation timestamp */
   createdAt: Date
   /** Last update timestamp */

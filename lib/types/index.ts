@@ -11,6 +11,7 @@
 export type {
   NicheConfig,
   NicheConfigInput,
+  NicheLayoutConfigJson,
   ProductTypeDefinition,
   CategoryTypeDefinition,
   AffiliatePartner,

@@ -14,6 +14,7 @@
 
 import { parseContent, addHeadingIds, type ParsedContentBlock } from '@/lib/utils/content-parser'
 import { autoLinkContent, productToLinkable, categoryToLinkable } from '@/lib/utils/content-linker'
+import { cn } from '@/lib/utils'
 import InlineProductCard from './InlineProductCard'
 import InlineProductGrid from './InlineProductGrid'
 import InlineComparison from './InlineComparison'
@@ -100,11 +101,34 @@ function ContentBlock({
   products,
   categoryProducts,
 }: ContentBlockProps) {
-  // HTML block - render directly
+  // HTML block - render directly with Tailwind Typography prose styling
   if (block.type === 'html' && block.content) {
     return (
       <div
-        className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-[var(--site-primary)] prose-img:rounded-xl [&_.auto-link]:text-[var(--site-primary)] [&_.auto-link]:no-underline [&_.auto-link:hover]:underline"
+        className={cn(
+          // Base prose styling
+          'prose prose-neutral dark:prose-invert max-w-none prose-lg',
+          // Headings
+          'prose-headings:font-bold prose-headings:text-foreground',
+          'prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4',
+          'prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3',
+          // Paragraphs
+          'prose-p:text-muted-foreground prose-p:leading-relaxed',
+          // Strong/emphasis
+          'prose-strong:text-foreground prose-strong:font-semibold',
+          // Links
+          'prose-a:text-[var(--site-primary)] prose-a:no-underline hover:prose-a:underline',
+          // Lists
+          'prose-li:text-muted-foreground prose-li:marker:text-[var(--site-primary)]',
+          // Blockquotes
+          'prose-blockquote:border-l-[var(--site-primary)] prose-blockquote:text-foreground',
+          // Code
+          'prose-code:text-[var(--site-primary)]',
+          // Images
+          'prose-img:rounded-xl',
+          // Auto-link styling (from content linker)
+          '[&_.auto-link]:text-[var(--site-primary)] [&_.auto-link]:no-underline [&_.auto-link:hover]:underline'
+        )}
         dangerouslySetInnerHTML={{ __html: block.content }}
       />
     )

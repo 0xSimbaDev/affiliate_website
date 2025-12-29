@@ -476,7 +476,11 @@ async function main() {
       priceText: '$229',
       rating: 4.7,
       reviewCount: 3420,
-      affiliateLinks: [{ partner: 'amazon', url: 'https://affiliate.example.com/logitech-g915-tkl', label: 'Buy on Amazon', isPrimary: true }],
+      affiliateLinks: [
+        { partner: 'amazon', url: 'https://affiliate.example.com/logitech-g915-tkl', label: 'Amazon', isPrimary: true },
+        { partner: 'bestbuy', url: 'https://affiliate.example.com/bestbuy/logitech-g915-tkl', label: 'Best Buy' },
+        { partner: 'newegg', url: 'https://affiliate.example.com/newegg/logitech-g915-tkl', label: 'Newegg' },
+      ],
       primaryAffiliateUrl: 'https://affiliate.example.com/logitech-g915-tkl',
       metadata: {
         brand: 'Logitech',
@@ -512,7 +516,10 @@ async function main() {
       priceText: '$249',
       rating: 4.8,
       reviewCount: 1850,
-      affiliateLinks: [{ partner: 'amazon', url: 'https://affiliate.example.com/razer-huntsman-v3-pro', label: 'Buy on Amazon', isPrimary: true }],
+      affiliateLinks: [
+        { partner: 'amazon', url: 'https://affiliate.example.com/razer-huntsman-v3-pro', label: 'Amazon', isPrimary: true },
+        { partner: 'bestbuy', url: 'https://affiliate.example.com/bestbuy/razer-huntsman-v3-pro', label: 'Best Buy' },
+      ],
       primaryAffiliateUrl: 'https://affiliate.example.com/razer-huntsman-v3-pro',
       metadata: {
         brand: 'Razer',
@@ -533,41 +540,130 @@ async function main() {
   // ============================================
   // GAMING PRODUCTS - MICE
   // ============================================
+  // Full product data for Logitech G Pro X Superlight 2
+  const superlight2Data = {
+    siteId: gamingSite.id,
+    productType: 'mouse',
+    slug: 'logitech-g-pro-x-superlight-2',
+    title: 'Logitech G Pro X Superlight 2',
+    excerpt: 'The ultimate wireless esports mouse at just 60g with HERO 2 sensor and LIGHTSPEED technology. Used by professional esports players worldwide.',
+    description: 'Building on the legendary Superlight, the Superlight 2 features the new HERO 2 sensor with 32K DPI, improved LIGHTSPEED wireless, and the same featherweight 60g design that made it a pro gaming staple.',
+    featuredImage: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800',
+      'https://images.unsplash.com/photo-1563297007-0686b7003af7?w=800',
+      'https://images.unsplash.com/photo-1629131726692-1accd0c53ce0?w=800',
+      'https://images.unsplash.com/photo-1613141411244-0e4ac259d217?w=800',
+    ],
+    priceFrom: 159,
+    priceCurrency: 'USD',
+    priceText: '$159',
+    rating: 4.9,
+    reviewCount: 5230,
+    affiliateLinks: [
+      { partner: 'amazon', url: 'https://affiliate.example.com/g-pro-x-superlight-2', label: 'Buy on Amazon', isPrimary: true },
+      { partner: 'bestbuy', url: 'https://affiliate.example.com/bestbuy/g-pro-x-superlight-2', label: 'Best Buy' },
+      { partner: 'newegg', url: 'https://affiliate.example.com/newegg/g-pro-x-superlight-2', label: 'Newegg' },
+    ],
+    primaryAffiliateUrl: 'https://affiliate.example.com/g-pro-x-superlight-2',
+    content: `
+<h2>Design & Build Quality</h2>
+<p>The Logitech G Pro X Superlight 2 is a masterclass in minimalist design. Weighing in at just <strong>60 grams</strong>, it's one of the lightest wireless gaming mice ever made, yet it doesn't sacrifice build quality to achieve this feat. The shell is made from a high-quality polymer that feels solid despite its featherweight construction.</p>
+
+<p>The ambidextrous shape works well for most grip styles, though palm grip users with larger hands might find it slightly small. Claw and fingertip grip users will find this mouse absolutely perfect. The PTFE feet glide effortlessly across any mousepad surface.</p>
+
+<h2>HERO 2 Sensor Performance</h2>
+<p>The new HERO 2 sensor is the star of the show. Capable of tracking up to <strong>32,000 DPI</strong> with zero smoothing, filtering, or acceleration, it delivers pixel-perfect precision that competitive gamers demand. In our testing across CS2, Valorant, and Apex Legends, the tracking was absolutely flawless.</p>
+
+<p>The sensor also features improved power efficiency, contributing to the impressive 95-hour battery life. You can go weeks between charges with regular use.</p>
+
+<h2>LIGHTSPEED Wireless Technology</h2>
+<p>Logitech's LIGHTSPEED wireless technology delivers a <strong>1ms report rate</strong>, making it indistinguishable from a wired connection. We tested latency extensively and found zero perceptible difference compared to wired alternatives. For competitive gaming, this is essential.</p>
+
+<h2>Battery Life & Charging</h2>
+<p>The 95-hour battery life is exceptional. We used the mouse for 3 weeks of heavy gaming (4-6 hours daily) before needing to charge. The USB-C charging is convenient, and a quick 15-minute charge provides about 10 hours of use.</p>
+
+<h2>Gaming Performance</h2>
+<p>In competitive FPS titles, the Superlight 2 excels. The combination of ultra-low weight, flawless sensor, and zero-latency wireless creates an experience where the mouse becomes an extension of your hand. Flick shots, tracking, and micro-adjustments all feel natural and precise.</p>
+
+<h2>Who Should Buy This?</h2>
+<p>The G Pro X Superlight 2 is ideal for:</p>
+<ul>
+  <li><strong>Competitive FPS players</strong> who need every advantage</li>
+  <li><strong>Esports professionals</strong> (it's one of the most used mice in pro tournaments)</li>
+  <li><strong>Gamers with wrist/arm fatigue</strong> from heavier mice</li>
+  <li><strong>Anyone seeking the best</strong> wireless gaming mouse available</li>
+</ul>
+
+<h2>The Verdict</h2>
+<p>At $159, the Logitech G Pro X Superlight 2 is expensive, but it delivers on its promise of being the ultimate competitive gaming mouse. If you're serious about gaming performance and want a wireless mouse that truly rivals wired options, this is the one to get.</p>
+    `.trim(),
+    metadata: {
+      brand: 'Logitech',
+      sensor: 'HERO 2',
+      dpi: '32,000',
+      weight: '60g',
+      batteryLife: '95 hours',
+      pros: [
+        'Incredibly light at just 60 grams',
+        'Flawless HERO 2 sensor with 32K DPI',
+        '95-hour battery life on single charge',
+        'Zero-latency LIGHTSPEED wireless',
+        'Perfect for competitive FPS gaming',
+        'Premium PTFE feet for smooth gliding',
+      ],
+      cons: [
+        'No RGB lighting (for purists, this is a pro)',
+        'Premium price at $159',
+        'May be too light for some users',
+        'Only 5 programmable buttons',
+        'Ambidextrous shape may not suit everyone',
+      ],
+      features: [
+        'HERO 2 32K sensor',
+        'LIGHTSPEED wireless',
+        'PTFE feet',
+        'Ambidextrous design',
+        '5 programmable buttons',
+        'USB-C charging',
+        'On-board memory',
+      ],
+      specifications: {
+        'Sensor': 'HERO 2',
+        'Max DPI': '32,000',
+        'Max Acceleration': '40 G',
+        'Max Speed': '400+ IPS',
+        'Polling Rate': '1000 Hz (1ms)',
+        'Buttons': '5 programmable',
+        'Weight': '60g',
+        'Battery Life': 'Up to 95 hours',
+        'Connectivity': 'LIGHTSPEED 2.4GHz wireless',
+        'Charging': 'USB-C',
+        'Dimensions': '125 x 63.5 x 40mm',
+        'Feet': 'PTFE (zero additives)',
+        'Cable': '1.8m charging cable',
+        'Compatibility': 'Windows, macOS',
+        'Warranty': '2 years',
+      },
+      benchmarks: [
+        { name: 'Sensor Accuracy', score: 99, maxScore: 100, unit: '%' },
+        { name: 'Click Latency', score: 0.7, maxScore: 10, unit: 'ms' },
+        { name: 'Build Quality', score: 92, maxScore: 100, unit: '%' },
+        { name: 'Comfort', score: 90, maxScore: 100, unit: '%' },
+        { name: 'Value for Money', score: 85, maxScore: 100, unit: '%' },
+      ],
+    },
+    status: ContentStatus.PUBLISHED,
+    isFeatured: true,
+    isActive: true,
+    sortOrder: 1,
+    publishedAt: new Date(),
+  }
+
   const logitechSuperlight2 = await prisma.product.upsert({
     where: { siteId_slug: { siteId: gamingSite.id, slug: 'logitech-g-pro-x-superlight-2' } },
-    update: {},
-    create: {
-      siteId: gamingSite.id,
-      productType: 'mouse',
-      slug: 'logitech-g-pro-x-superlight-2',
-      title: 'Logitech G Pro X Superlight 2',
-      excerpt: 'The ultimate wireless esports mouse at just 60g with HERO 2 sensor and LIGHTSPEED.',
-      description: 'Building on the legendary Superlight, the Superlight 2 features the new HERO 2 sensor with 32K DPI, improved LIGHTSPEED wireless, and the same featherweight 60g design.',
-      featuredImage: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800',
-      galleryImages: ['https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800'],
-      priceFrom: 159,
-      priceCurrency: 'USD',
-      priceText: '$159',
-      rating: 4.9,
-      reviewCount: 5230,
-      affiliateLinks: [{ partner: 'amazon', url: 'https://affiliate.example.com/g-pro-x-superlight-2', label: 'Buy on Amazon', isPrimary: true }],
-      primaryAffiliateUrl: 'https://affiliate.example.com/g-pro-x-superlight-2',
-      metadata: {
-        brand: 'Logitech',
-        sensor: 'HERO 2',
-        dpi: '32,000',
-        weight: '60g',
-        batteryLife: '95 hours',
-        pros: ['Incredibly light at 60g', 'Flawless HERO 2 sensor', '95-hour battery life', 'Zero lag wireless', 'Perfect for FPS games'],
-        cons: ['No RGB lighting', 'Expensive', 'May be too light for some'],
-        features: ['HERO 2 32K sensor', 'LIGHTSPEED wireless', 'PTFE feet', 'Ambidextrous design', '5 programmable buttons'],
-      },
-      status: ContentStatus.PUBLISHED,
-      isFeatured: true,
-      isActive: true,
-      sortOrder: 1,
-      publishedAt: new Date(),
-    },
+    update: superlight2Data,
+    create: superlight2Data,
   })
 
   const razerDeathAdder = await prisma.product.upsert({
@@ -856,7 +952,11 @@ async function main() {
       priceText: 'From $1,999',
       rating: 4.9,
       reviewCount: 3840,
-      affiliateLinks: [{ partner: 'apple', url: 'https://affiliate.example.com/macbook-pro-m3-pro', label: 'Buy from Apple', isPrimary: true }],
+      affiliateLinks: [
+        { partner: 'apple', url: 'https://affiliate.example.com/macbook-pro-m3-pro', label: 'Apple', isPrimary: true },
+        { partner: 'amazon', url: 'https://affiliate.example.com/amazon/macbook-pro-m3-pro', label: 'Amazon' },
+        { partner: 'bh-photo', url: 'https://affiliate.example.com/bhphoto/macbook-pro-m3-pro', label: 'B&H Photo' },
+      ],
       primaryAffiliateUrl: 'https://affiliate.example.com/macbook-pro-m3-pro',
       metadata: {
         brand: 'Apple',
@@ -1382,6 +1482,88 @@ async function main() {
       status: ContentStatus.PUBLISHED,
       isFeatured: false,
       publishedAt: new Date(Date.now() - 259200000), // 3 days ago
+    },
+  })
+
+  // Article demonstrating all shortcode types
+  await prisma.article.upsert({
+    where: { siteId_slug: { siteId: gamingSite.id, slug: 'ultimate-gaming-setup-guide-2025' } },
+    update: { articleCategoryId: gamingBuyingGuidesCategory.id },
+    create: {
+      siteId: gamingSite.id,
+      articleCategoryId: gamingBuyingGuidesCategory.id,
+      categoryId: miceCategory.id,
+      articleType: ArticleType.BUYING_GUIDE,
+      slug: 'ultimate-gaming-setup-guide-2025',
+      title: 'Ultimate Gaming Setup Guide 2025: Build Your Dream Battlestation',
+      excerpt: 'From peripherals to furniture, we break down everything you need for the perfect gaming setup with our top product recommendations.',
+      content: `<p>Building the ultimate gaming setup requires careful consideration of every component. In this comprehensive guide, we'll walk you through our top recommendations for each category, complete with product picks at every price point.</p>
+
+<h2>Our Top Overall Pick</h2>
+<p>After testing dozens of gaming mice, the Logitech G Pro X Superlight 2 stands out as our editor's choice for 2025. Here's why it earned our highest recommendation:</p>
+
+[product:logitech-g-pro-x-superlight-2,featured]
+
+<p>The Superlight 2 improves on its predecessor in every way that matters. The new HERO 2 sensor is flawless, the weight has been reduced even further, and battery life is exceptional.</p>
+
+<h2>Best Gaming Mice</h2>
+<p>The mouse is arguably the most important peripheral for competitive gaming. Here are our top picks across different categories:</p>
+
+[products:gaming-mice,4]
+
+<p>Each of these mice excels in different scenarios. The Superlight 2 is perfect for FPS games, while the DeathAdder V3 Pro offers superior ergonomics for longer sessions.</p>
+
+<h3>Head-to-Head: Logitech vs Razer</h3>
+<p>Can't decide between the two biggest names in gaming peripherals? Here's how our top picks from each brand compare:</p>
+
+[comparison:logitech-g-pro-x-superlight-2,razer-deathadder-v3-pro]
+
+<h2>Keyboard Recommendations</h2>
+<p>A great keyboard can make or break your gaming experience. For most gamers, we recommend the Razer Huntsman V3 Pro:</p>
+
+[product:razer-huntsman-v3-pro]
+
+<p>If you prefer a more compact option with premium wireless, the Logitech G915 TKL is an excellent alternative:</p>
+
+[product:logitech-g915-tkl,compact]
+
+<h2>Audio Setup</h2>
+<p>Good audio gives you a competitive advantage. Hear footsteps before your enemies see you coming. Here are the best gaming headsets we've tested:</p>
+
+[products:gaming-headsets]
+
+<h3>Premium vs Budget</h3>
+<p>Not sure whether to splurge on the premium option? Here's how the SteelSeries Arctis Nova Pro stacks up against the more affordable HyperX Cloud III:</p>
+
+[comparison:steelseries-arctis-nova-pro,hyperx-cloud-iii-wireless]
+
+<h2>Monitor Selection</h2>
+<p>Your monitor choice depends heavily on what games you play and your GPU. For competitive esports, refresh rate is king. For immersive single-player games, resolution and HDR matter more.</p>
+
+[products:gaming-monitors]
+
+<h2>Don't Forget Your Chair</h2>
+<p>You'll spend hours in your gaming chair, so invest wisely. A good chair prevents back pain and improves focus during long sessions.</p>
+
+[products:gaming-chairs]
+
+<h2>Final Thoughts</h2>
+<p>Building the perfect gaming setup is a personal journey. Start with the peripherals that matter most for your favorite games, then gradually upgrade the rest. Remember: the best setup is one that fits your playstyle and budget.</p>
+
+<p>Have questions about any of these products? Check out our individual reviews for more in-depth analysis and testing data.</p>`,
+      featuredImage: 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=1200',
+      author: 'Alex Chen',
+      seoTitle: 'Ultimate Gaming Setup Guide 2025 - Complete Battlestation Build',
+      seoDescription: 'Build your dream gaming setup with our comprehensive guide. Expert recommendations for mice, keyboards, headsets, monitors, and chairs.',
+      seoKeywords: ['gaming setup', 'battlestation', 'gaming peripherals', 'pc gaming', 'gaming gear 2025'],
+      status: ContentStatus.PUBLISHED,
+      isFeatured: true,
+      publishedAt: new Date(),
+      faqs: [
+        { question: 'How much should I spend on a gaming setup?', answer: 'A solid gaming setup can range from $500 for essentials to $2000+ for premium gear. We recommend prioritizing mouse and monitor first, as they have the biggest impact on gameplay.' },
+        { question: 'Wireless or wired peripherals?', answer: 'Modern wireless gaming peripherals have virtually zero latency compared to wired. Go wireless for a cleaner setup without sacrificing performance.' },
+        { question: 'Do I need RGB lighting?', answer: 'RGB is purely aesthetic and doesn\'t improve performance. However, it can enhance your setup\'s look and some find it helps with immersion.' },
+      ],
     },
   })
 

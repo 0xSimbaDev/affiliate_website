@@ -14,35 +14,10 @@ import type {
   ProductListResponse,
   ContentStatus,
 } from '@/lib/types'
-
-/**
- * Convert Prisma Decimal to number for JSON serialization.
- */
-function toProductCardData(product: {
-  id: string
-  slug: string
-  title: string
-  excerpt: string | null
-  featuredImage: string | null
-  priceFrom: { toNumber(): number } | null
-  priceCurrency: string | null
-  rating: { toNumber(): number } | null
-  productType: string
-  isFeatured: boolean
-}): ProductCardData {
-  return {
-    id: product.id,
-    slug: product.slug,
-    title: product.title,
-    excerpt: product.excerpt,
-    featuredImage: product.featuredImage,
-    priceFrom: product.priceFrom?.toNumber() ?? null,
-    priceCurrency: product.priceCurrency,
-    rating: product.rating?.toNumber() ?? null,
-    productType: product.productType,
-    isFeatured: product.isFeatured,
-  }
-}
+import {
+  toProductCardData,
+  toProductWithCategories,
+} from './mappers'
 
 /**
  * Get products for a site with filtering and pagination.
@@ -152,21 +127,7 @@ export const getProductBySlug = cache(
 
     if (!product) return null
 
-    // Parse affiliateLinks JSON field if it's stored as string
-    const affiliateLinks = product.affiliateLinks
-      ? (typeof product.affiliateLinks === 'string'
-          ? JSON.parse(product.affiliateLinks)
-          : product.affiliateLinks)
-      : null
-
-    return {
-      ...product,
-      affiliateLinks,
-      // Convert Decimal fields to numbers
-      priceFrom: product.priceFrom?.toNumber() ?? null,
-      priceTo: product.priceTo?.toNumber() ?? null,
-      rating: product.rating?.toNumber() ?? null,
-    } as unknown as ProductWithCategories
+    return toProductWithCategories(product)
   }
 )
 

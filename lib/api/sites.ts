@@ -9,6 +9,7 @@ import { cache } from 'react'
 import { headers } from 'next/headers'
 import prisma from '@/lib/prisma'
 import type { SiteWithNiche, SiteReference } from '@/lib/types'
+import { toSiteWithNiche } from './mappers'
 import domainMappings from '@/lib/config/domain-mappings.json'
 
 /**
@@ -28,7 +29,7 @@ export const getSiteBySlug = cache(async (slug: string): Promise<SiteWithNiche |
 
   if (!site) return null
 
-  return site as unknown as SiteWithNiche
+  return toSiteWithNiche(site)
 })
 
 /**
@@ -49,7 +50,7 @@ export const getSiteByDomain = cache(async (domain: string): Promise<SiteWithNic
 
   if (!site) return null
 
-  return site as unknown as SiteWithNiche
+  return toSiteWithNiche(site)
 })
 
 /**
@@ -92,7 +93,7 @@ export const getCurrentSite = cache(async (): Promise<SiteWithNiche | null> => {
     return null
   }
 
-  return site as unknown as SiteWithNiche
+  return toSiteWithNiche(site)
 })
 
 /**

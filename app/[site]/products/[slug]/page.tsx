@@ -30,10 +30,33 @@ interface PageProps {
 }
 
 /**
- * Generate static params for all product pages
+ * Generate static params for all product pages.
+ * Fetches all sites and their published products for static generation.
  */
 export async function generateStaticParams() {
-  return []
+  const { getAllSites } = await import('@/lib/api/sites')
+  const { getProducts } = await import('@/lib/api/products')
+
+  const sites = await getAllSites()
+  const params: Array<{ site: string; slug: string }> = []
+
+  for (const site of sites) {
+    // Fetch all published products for this site
+    const { products } = await getProducts(site.id, {
+      status: 'PUBLISHED',
+      limit: 1000, // Reasonable limit for static generation
+    })
+
+    // Add params for each product
+    for (const product of products) {
+      params.push({
+        site: site.slug,
+        slug: product.slug,
+      })
+    }
+  }
+
+  return params
 }
 
 /**

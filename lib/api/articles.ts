@@ -15,39 +15,10 @@ import type {
   ArticleListResponse,
   ContentStatus,
 } from '@/lib/types'
-
-/**
- * Convert Prisma article to card data format.
- */
-function toArticleCardData(article: {
-  id: string
-  slug: string
-  title: string
-  excerpt: string | null
-  articleType: ArticleType
-  featuredImage: string | null
-  author: string | null
-  publishedAt: Date | null
-  isFeatured: boolean
-  articleCategory: { id: string; slug: string; name: string; description: string | null } | null
-  category?: { id: string; slug: string; name: string; categoryType: string } | null
-  _count?: { products: number }
-}): ArticleCardData {
-  return {
-    id: article.id,
-    slug: article.slug,
-    title: article.title,
-    excerpt: article.excerpt,
-    articleType: article.articleType,
-    featuredImage: article.featuredImage,
-    author: article.author,
-    publishedAt: article.publishedAt,
-    isFeatured: article.isFeatured,
-    articleCategory: article.articleCategory,
-    category: article.category || null, // DEPRECATED
-    productCount: article._count?.products,
-  }
-}
+import {
+  toArticleCardData,
+  toArticleWithProducts,
+} from './mappers'
 
 /**
  * Get articles for a site with filtering and pagination.
@@ -197,31 +168,7 @@ export const getArticleBySlug = cache(
 
     if (!article) return null
 
-    // Transform the products to include converted decimal values
-    const transformedProducts = article.products.map((ap) => ({
-      id: ap.id,
-      productId: ap.productId,
-      position: ap.position,
-      highlight: ap.highlight,
-      product: {
-        id: ap.product.id,
-        slug: ap.product.slug,
-        title: ap.product.title,
-        excerpt: ap.product.excerpt,
-        featuredImage: ap.product.featuredImage,
-        priceFrom: ap.product.priceFrom?.toNumber() ?? null,
-        priceCurrency: ap.product.priceCurrency,
-        rating: ap.product.rating?.toNumber() ?? null,
-        productType: ap.product.productType,
-        isFeatured: ap.product.isFeatured,
-        primaryAffiliateUrl: ap.product.primaryAffiliateUrl,
-      },
-    }))
-
-    return {
-      ...article,
-      products: transformedProducts,
-    } as unknown as ArticleWithProducts
+    return toArticleWithProducts(article)
   }
 )
 

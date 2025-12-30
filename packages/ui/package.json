@@ -1,0 +1,48 @@
+{
+  "name": "@affiliate/ui",
+  "version": "0.0.1",
+  "private": true,
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ui": "./src/ui/index.ts",
+    "./ui/*": "./src/ui/*.tsx",
+    "./primitives": "./src/ui/index.ts",
+    "./primitives/*": "./src/ui/*.tsx",
+    "./products": "./src/products/index.ts",
+    "./products/*": "./src/products/*.tsx",
+    "./articles": "./src/articles/index.ts",
+    "./articles/*": "./src/articles/*.tsx",
+    "./categories": "./src/categories/index.ts",
+    "./categories/*": "./src/categories/*.tsx",
+    "./affiliate": "./src/affiliate/index.ts",
+    "./affiliate/*": "./src/affiliate/*.tsx",
+    "./seo": "./src/seo/index.ts",
+    "./seo/*": "./src/seo/*.tsx",
+    "./shared": "./src/shared/index.ts",
+    "./shared/*": "./src/shared/*.tsx"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@affiliate/types": "workspace:*",
+    "@affiliate/utils": "workspace:*",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.1",
+    "lucide-react": "^0.562.0",
+    "react": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "next": "^14 || ^15 || ^16"
+  }
+}

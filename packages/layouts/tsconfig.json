@@ -1,0 +1,19 @@
+{
+  "extends": "../config/typescript/library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@affiliate/layouts/*": ["./src/*"],
+      "@affiliate/api": ["../api/src"],
+      "@affiliate/api/*": ["../api/src/*"],
+      "@affiliate/types": ["../types/src"],
+      "@affiliate/types/*": ["../types/src/*"],
+      "@affiliate/ui": ["../ui/src"],
+      "@affiliate/ui/*": ["../ui/src/*"],
+      "@affiliate/utils": ["../utils/src"],
+      "@affiliate/utils/*": ["../utils/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"]
+}

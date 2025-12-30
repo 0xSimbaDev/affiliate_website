@@ -1,0 +1,69 @@
+# Docker Compose for Development
+# Usage: docker compose -f docker/docker-compose.yml up --build
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: affiliate-postgres
+    environment:
+      POSTGRES_USER: affiliate
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-affiliate_dev_password}
+      POSTGRES_DB: affiliate_platform
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U affiliate -d affiliate_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - affiliate-network
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      args:
+        DATABASE_URL: postgresql://affiliate:${DB_PASSWORD:-affiliate_dev_password}@postgres:5432/affiliate_platform
+    container_name: affiliate-web
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://affiliate:${DB_PASSWORD:-affiliate_dev_password}@postgres:5432/affiliate_platform
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - affiliate-network
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: ..
+      dockerfile: apps/admin/Dockerfile
+      args:
+        DATABASE_URL: postgresql://affiliate:${DB_PASSWORD:-affiliate_dev_password}@postgres:5432/affiliate_platform
+    container_name: affiliate-admin
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://affiliate:${DB_PASSWORD:-affiliate_dev_password}@postgres:5432/affiliate_platform
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - affiliate-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  affiliate-network:
+    driver: bridge

@@ -1,0 +1,572 @@
+import Link from 'next/link';
+import { Suspense } from 'react';
+import { getSiteBySlug } from '@affiliate/api/sites';
+import { getFeaturedProducts, getProducts } from '@affiliate/api/products';
+import { getCategories } from '@affiliate/api/categories';
+import { ProductGrid } from '@affiliate/ui/products';
+import { Skeleton } from '@affiliate/ui/ui/skeleton';
+import { WebsiteJsonLd } from '@affiliate/ui/seo';
+import { cn, buildCanonicalUrl, getTwitterHandle } from '@affiliate/utils';
+import type { ProductCardData } from '@affiliate/types';
+import type { Metadata } from 'next';
+
+// Import extracted home components
+import {
+  SectionHeader,
+  FeaturedProductCard,
+  CategoryCard,
+} from './_components/home';
+
+interface SiteHomePageProps {
+  params: Promise<{ site: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: SiteHomePageProps): Promise<Metadata> {
+  const { site: siteSlug } = await params;
+  const site = await getSiteBySlug(siteSlug);
+
+  if (!site) {
+    return { title: 'Site Not Found' };
+  }
+
+  const title = site.name;
+  const description = site.description || site.tagline || `Welcome to ${site.name}`;
+  const canonicalUrl = buildCanonicalUrl(site, '');
+  const twitterHandle = getTwitterHandle(site.social as Record<string, unknown> | null);
+
+  return {
+    title,
+    description,
+    keywords: site.niche?.name ? [site.niche.name, 'reviews', 'buying guide'] : undefined,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: site.name,
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      ...(twitterHandle && { site: twitterHandle }),
+    },
+  };
+}
+
+/**
+ * Quick Pick Card - Compact card for ranked lists
+ */
+function QuickPickCard({
+  product,
+  siteSlug,
+  rank,
+}: {
+  product: ProductCardData;
+  siteSlug: string;
+  rank: number;
+}) {
+  const productUrl = `/${siteSlug}/products/${product.slug}`;
+
+  return (
+    <article className="group flex gap-4 rounded-lg border border-border/50 bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-md">
+      <Link href={productUrl} className="flex w-full gap-4">
+        {/* Rank Badge */}
+        <div
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
+          style={{ backgroundColor: 'var(--site-primary)' }}
+        >
+          #{rank}
+        </div>
+
+        {/* Content */}
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-medium text-foreground transition-colors group-hover:text-[var(--site-primary)]">
+            {product.title}
+          </h3>
+          <div className="mt-1 flex items-center gap-3">
+            {product.priceFrom && (
+              <span className="text-sm font-semibold text-foreground">
+                ${product.priceFrom}
+              </span>
+            )}
+            {product.rating && (
+              <div className="flex items-center gap-1">
+                <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="text-xs text-muted-foreground">{product.rating.toFixed(1)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Arrow */}
+        <div className="flex flex-shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100">
+          <svg
+            className="h-5 w-5 text-muted-foreground"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+/**
+ * Trust Metric Component
+ */
+function TrustMetric({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="text-center">
+      <div
+        className="mb-1 text-3xl font-bold lg:text-4xl"
+        style={{ color: 'var(--site-primary)' }}
+      >
+        {value}
+      </div>
+      <p className="text-sm text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+/**
+ * Featured Products Section - Async data fetching
+ */
+async function FeaturedProductsSection({
+  siteId,
+  siteSlug,
+}: {
+  siteId: string;
+  siteSlug: string;
+}) {
+  const featuredProducts = await getFeaturedProducts(siteId, 3);
+
+  if (featuredProducts.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+      {featuredProducts.map((product, index) => (
+        <FeaturedProductCard
+          key={product.id}
+          product={product}
+          siteSlug={siteSlug}
+          isLarge={index === 0}
+        />
+      ))}
+    </div>
+  );
+}
+
+function FeaturedProductsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+      {[...Array(3)].map((_, i) => (
+        <div
+          key={i}
+          className={cn(
+            'overflow-hidden rounded-xl border border-border/50',
+            i === 0 && 'lg:col-span-2 lg:row-span-2'
+          )}
+        >
+          <Skeleton className={cn('w-full', i === 0 ? 'aspect-[16/9]' : 'aspect-[16/10]')} />
+          <div className="space-y-3 p-5">
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Quick Picks Section - Top rated products
+ */
+async function QuickPicksSection({
+  siteId,
+  siteSlug,
+}: {
+  siteId: string;
+  siteSlug: string;
+}) {
+  const { products } = await getProducts(siteId, {
+    limit: 4,
+    sortBy: 'rating',
+    sortOrder: 'desc',
+  });
+
+  if (products.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      {products.map((product, index) => (
+        <QuickPickCard
+          key={product.id}
+          product={product}
+          siteSlug={siteSlug}
+          rank={index + 1}
+        />
+      ))}
+    </div>
+  );
+}
+
+function QuickPicksSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex gap-4 rounded-lg border border-border/50 p-4">
+          <Skeleton className="h-10 w-10 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Categories Section
+ */
+async function CategoriesSection({
+  siteId,
+  siteSlug,
+}: {
+  siteId: string;
+  siteSlug: string;
+}) {
+  const categories = await getCategories(siteId, { parentId: null });
+
+  if (categories.length === 0) {
+    return null;
+  }
+
+  // Get total product count for display
+  const { total: totalProducts } = await getProducts(siteId, { limit: 1 });
+  const avgProductsPerCategory = Math.max(1, Math.floor(totalProducts / Math.max(1, categories.length)));
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {categories.slice(0, 6).map((category) => (
+        <CategoryCard
+          key={category.id}
+          category={category}
+          siteSlug={siteSlug}
+          productCount={avgProductsPerCategory}
+        />
+      ))}
+    </div>
+  );
+}
+
+function CategoriesSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="flex items-center gap-4 rounded-xl border border-border/50 p-4">
+          <Skeleton className="h-12 w-12 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-5 w-2/3" />
+            <Skeleton className="h-4 w-1/3" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Latest Products Section
+ */
+async function LatestProductsSection({
+  siteId,
+  siteSlug,
+}: {
+  siteId: string;
+  siteSlug: string;
+}) {
+  const { products } = await getProducts(siteId, {
+    limit: 4,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
+
+  if (products.length === 0) {
+    return null;
+  }
+
+  return <ProductGrid products={products} siteSlug={siteSlug} />;
+}
+
+function LatestProductsSkeleton() {
+  return <ProductGrid products={[]} siteSlug="" isLoading={true} skeletonCount={4} />;
+}
+
+/**
+ * Site Homepage
+ *
+ * A clean, editorial homepage inspired by Wirecutter and The Verge.
+ * Fetches real data from the database for:
+ * - Featured products
+ * - Top-rated products (Quick Picks)
+ * - Categories with product counts
+ * - Latest products
+ */
+export default async function SiteHomePage({ params }: SiteHomePageProps) {
+  const { site: siteSlug } = await params;
+  const site = await getSiteBySlug(siteSlug);
+
+  if (!site) {
+    return null; // Layout will handle 404
+  }
+
+  const nicheName = site.niche?.name || 'Products';
+  const siteId = site.id;
+  const baseUrl = buildCanonicalUrl(site, '');
+
+  return (
+    <>
+      {/* JSON-LD Structured Data */}
+      <WebsiteJsonLd
+        name={site.name}
+        url={baseUrl}
+        description={site.description || site.tagline}
+        searchUrl={`${baseUrl}/products?q={search_term_string}`}
+      />
+
+      <div className="flex flex-col">
+        {/* Hero Section - Featured Picks Grid */}
+        <section className="py-8 lg:py-12">
+        <div className="container-wide section-padding">
+          {/* Hero Header */}
+          <div className="mb-8">
+            <div className="mb-3 flex items-center gap-2">
+              <div
+                className="h-1.5 w-1.5 animate-pulse rounded-full"
+                style={{ backgroundColor: 'var(--site-primary)' }}
+              />
+              <span className="text-sm font-medium text-muted-foreground">
+                Expert {nicheName} Reviews
+              </span>
+            </div>
+            <h1 className="mb-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              Find the Best {nicheName}
+            </h1>
+            <p className="max-w-2xl text-lg text-muted-foreground">
+              Independent, hands-on reviews to help you make informed decisions.
+              Updated weekly with the latest picks.
+            </p>
+          </div>
+
+          {/* Featured Grid */}
+          <Suspense fallback={<FeaturedProductsSkeleton />}>
+            <FeaturedProductsSection siteId={siteId} siteSlug={siteSlug} />
+          </Suspense>
+        </div>
+      </section>
+
+      {/* Quick Picks Section */}
+      <section className="bg-muted/30 py-12 lg:py-16">
+        <div className="container-wide section-padding">
+          <SectionHeader
+            label="Top Rated"
+            title="This Week's Best Picks"
+            description="Our highest-rated products based on performance, value, and user feedback."
+            action={{ href: `/${siteSlug}/products?sort=rating`, label: 'View all reviews' }}
+          />
+
+          <Suspense fallback={<QuickPicksSkeleton />}>
+            <QuickPicksSection siteId={siteId} siteSlug={siteSlug} />
+          </Suspense>
+
+          {/* Mobile View All Link */}
+          <div className="mt-6 text-center sm:hidden">
+            <Link
+              href={`/${siteSlug}/products?sort=rating`}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              View all reviews
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="py-12 lg:py-16">
+        <div className="container-wide section-padding">
+          <SectionHeader
+            label="Browse"
+            title="Shop by Category"
+            action={{ href: `/${siteSlug}/categories`, label: 'All categories' }}
+          />
+
+          <Suspense fallback={<CategoriesSkeleton />}>
+            <CategoriesSection siteId={siteId} siteSlug={siteSlug} />
+          </Suspense>
+        </div>
+      </section>
+
+      {/* Latest Products Section */}
+      <section className="bg-muted/30 py-12 lg:py-16">
+        <div className="container-wide section-padding">
+          <SectionHeader
+            label="New Arrivals"
+            title="Latest Products"
+            description="Fresh additions to our collection. Be the first to discover new finds."
+            action={{ href: `/${siteSlug}/products?sort=newest`, label: 'View all new' }}
+          />
+
+          <Suspense fallback={<LatestProductsSkeleton />}>
+            <LatestProductsSection siteId={siteId} siteSlug={siteSlug} />
+          </Suspense>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section className="py-12 lg:py-16">
+        <div className="container-wide section-padding">
+          <div className="rounded-2xl border border-border/50 bg-card p-8 lg:p-12">
+            <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+              {/* Content */}
+              <div>
+                <p
+                  className="mb-3 text-sm font-medium uppercase tracking-wide"
+                  style={{ color: 'var(--site-primary)' }}
+                >
+                  Why Trust Us
+                </p>
+                <h2 className="mb-4 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                  Independent Reviews You Can Rely On
+                </h2>
+                <p className="mb-6 text-muted-foreground">
+                  We test every product ourselves. Our recommendations are based
+                  on real-world experience, not manufacturer claims or sponsored
+                  content. When you buy through our links, we may earn a
+                  commission, but it never influences our reviews.
+                </p>
+
+                <div className="space-y-4">
+                  {[
+                    { title: 'Hands-on Testing', desc: 'Every product is tested in real-world conditions' },
+                    { title: 'No Paid Placements', desc: 'Rankings based on merit, not advertising dollars' },
+                    { title: 'Regular Updates', desc: 'Reviews updated as products and prices change' },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div
+                        className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full"
+                        style={{ backgroundColor: 'var(--site-primary)' }}
+                      >
+                        <svg
+                          className="h-3 w-3 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          strokeWidth={3}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-foreground">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8">
+                  <Link
+                    href={`/${siteSlug}/about`}
+                    className={cn(
+                      'inline-flex items-center gap-2 px-5 py-2.5',
+                      'rounded-lg border border-border bg-background text-sm font-medium',
+                      'transition-colors duration-150 hover:bg-muted'
+                    )}
+                  >
+                    Learn about our process
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="rounded-xl bg-muted/50 p-8">
+                <div className="grid grid-cols-2 gap-8">
+                  <TrustMetric value="500+" label="Products Tested" />
+                  <TrustMetric value="100K+" label="Monthly Readers" />
+                  <TrustMetric value="5+" label="Years Experience" />
+                  <TrustMetric value="4.9" label="Avg. Rating" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Affiliate Disclosure Banner */}
+      <section className="py-8 lg:py-10">
+        <div className="container-wide section-padding">
+          <div className="rounded-lg bg-muted/50 p-4 text-center lg:p-6">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Affiliate Disclosure:</span>{' '}
+              We may earn commissions from purchases made through links on this
+              site. This helps support our independent testing and keeps our
+              reviews free.{' '}
+              <Link
+                href={`/${siteSlug}/disclaimer`}
+                className="underline transition-colors hover:text-foreground"
+              >
+                Learn more
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+      </div>
+    </>
+  );
+}

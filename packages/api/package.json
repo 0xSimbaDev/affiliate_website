@@ -1,0 +1,26 @@
+{
+  "name": "@affiliate/api",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@affiliate/database": "workspace:*",
+    "@affiliate/types": "workspace:*",
+    "react": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "next": "^14 || ^15 || ^16"
+  }
+}

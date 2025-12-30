@@ -1,0 +1,23 @@
+{
+  "name": "@affiliate/utils",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@affiliate/types": "workspace:*",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.4.0",
+    "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

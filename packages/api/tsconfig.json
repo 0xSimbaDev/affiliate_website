@@ -1,0 +1,14 @@
+{
+  "extends": "../config/typescript/library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@affiliate/api/*": ["./src/*"],
+      "@affiliate/database": ["../database/src"],
+      "@affiliate/types": ["../types/src"],
+      "@affiliate/types/*": ["../types/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

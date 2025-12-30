@@ -56,8 +56,8 @@ async function generateDomainMappings() {
       domainMap[`${site.slug}.localhost`] = site.slug
     }
 
-    // Output path
-    const outputPath = path.join(process.cwd(), 'lib', 'config', 'domain-mappings.json')
+    // Output path - write to apps/web/lib/config for the web app
+    const outputPath = path.join(process.cwd(), 'apps', 'web', 'lib', 'config', 'domain-mappings.json')
 
     // Ensure directory exists
     fs.mkdirSync(path.dirname(outputPath), { recursive: true })

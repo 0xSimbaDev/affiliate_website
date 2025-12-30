@@ -1,0 +1,13 @@
+{
+  "extends": "../config/typescript/library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@affiliate/utils/*": ["./src/*"],
+      "@affiliate/types": ["../types/src"],
+      "@affiliate/types/*": ["../types/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

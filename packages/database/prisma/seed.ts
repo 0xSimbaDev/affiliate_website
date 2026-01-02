@@ -1,7 +1,8 @@
-import { PrismaClient, ContentStatus, ArticleType } from '@prisma/client'
+import { PrismaClient, ContentStatus, ArticleType, UserRole } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 import { config } from 'dotenv'
+import bcrypt from 'bcryptjs'
 
 // Load environment variables
 config()
@@ -1729,6 +1730,40 @@ async function main() {
   }
 
   console.log('Created article-product relationships')
+
+  // ============================================
+  // ADMIN USER
+  // ============================================
+  const hashedPassword = await bcrypt.hash('admin123', 10)
+
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@example.com' },
+    update: {},
+    create: {
+      email: 'admin@example.com',
+      name: 'Admin User',
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+      isActive: true,
+    },
+  })
+
+  console.log('Created admin user:', adminUser.email)
+
+  // Assign all sites to admin user
+  const allSites = await prisma.site.findMany()
+  for (const site of allSites) {
+    await prisma.userSite.upsert({
+      where: { userId_siteId: { userId: adminUser.id, siteId: site.id } },
+      update: {},
+      create: {
+        userId: adminUser.id,
+        siteId: site.id,
+      },
+    })
+  }
+
+  console.log('Assigned all sites to admin user')
 
   console.log('\nSeeding completed successfully!')
   console.log('\nSummary:')

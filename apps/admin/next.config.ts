@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   ],
 
   images: {
+    // Allow local uploads to bypass optimization (works in all environments)
+    unoptimized: process.env.NODE_ENV === 'development',
     remotePatterns: [
       {
         protocol: "https",
@@ -26,6 +28,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "*.supabase.in",
+      },
+    ],
+    // Allow local images in development
+    localPatterns: [
+      {
+        pathname: '/uploads/**',
       },
     ],
   },

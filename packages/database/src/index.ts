@@ -6,6 +6,9 @@
 
 export { prisma } from './client'
 
+// Re-export Prisma namespace for types like Prisma.Decimal, Prisma.JsonNull, etc.
+export { Prisma } from '@prisma/client'
+
 // Re-export Prisma types that are commonly used
 export type {
   Site,

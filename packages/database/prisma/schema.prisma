@@ -27,6 +27,171 @@ enum ArticleType {
   HOW_TO         // Tutorial/instructional content
 }
 
+enum UserRole {
+  ADMIN          // Platform-wide admin, can manage all sites and users
+  OWNER          // Site owner, can manage their assigned sites
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PUBLISH
+  UNPUBLISH
+  LOGIN
+  LOGOUT
+}
+
+// ============================================================================
+// USER - NextAuth.js compatible user model
+// ============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  password      String?   // Hashed password for credentials provider
+  role          UserRole  @default(OWNER)
+  isActive      Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  accounts     Account[]
+  sessions     Session[]
+  sites        UserSite[]
+  auditLogs    AuditLog[]
+  mediaUploads Media[]
+
+  @@map("users")
+}
+
+// ============================================================================
+// NEXTAUTH.JS REQUIRED MODELS
+// ============================================================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// USER_SITE - Site ownership relationship
+// ============================================================================
+
+model UserSite {
+  id        String   @id @default(cuid())
+  userId    String
+  siteId    String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, siteId])
+  @@index([userId])
+  @@index([siteId])
+  @@map("user_sites")
+}
+
+// ============================================================================
+// MEDIA - Uploaded media files
+// ============================================================================
+
+model Media {
+  id           String   @id @default(cuid())
+  siteId       String
+  uploadedBy   String?
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int      // Size in bytes
+  url          String
+  thumbnailUrl String?
+  width        Int?
+  height       Int?
+  alt          String?
+  caption      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site Site  @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [uploadedBy], references: [id], onDelete: SetNull)
+
+  @@index([siteId])
+  @@index([uploadedBy])
+  @@map("media")
+}
+
+// ============================================================================
+// AUDIT_LOG - Track admin actions
+// ============================================================================
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String
+  siteId     String?
+  action     AuditAction
+  entityType String      // 'product', 'article', 'category', etc.
+  entityId   String?
+  changes    Json?       // Before/after snapshot
+  ipAddress  String?
+  userAgent  String?
+
+  createdAt DateTime @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site Site? @relation(fields: [siteId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([siteId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
 // ============================================================================
 // NICHE - Top-level configuration for each vertical
 // ============================================================================
@@ -78,6 +243,9 @@ model Site {
   categories        Category[]
   articleCategories ArticleCategory[]
   articles          Article[]
+  users             UserSite[]
+  media             Media[]
+  auditLogs         AuditLog[]
 
   @@index([nicheId])
   @@map("sites")

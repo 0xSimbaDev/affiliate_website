@@ -1,15 +1,20 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Tell Tailwind v4 to scan packages for class usage */
 @source "../../../packages/ui/src";
-@source "../../../packages/api/src";
+@source "../../../packages/utils/src";
 
-/* ==========================================================================
-   ADMIN DASHBOARD STYLES
-   ========================================================================== */
+/* ============================================================================
+ * DESIGN TOKENS - Admin Theme
+ * Modern minimalist design system
+ * ============================================================================ */
 
 @theme inline {
-  /* Typography Scale */
+  /* Typography */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Font Sizes */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -18,89 +23,238 @@
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
 
-  /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
+  /* Colors - Light Mode */
+  --color-background: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-hover: #f5f5f5;
+  --color-foreground: #171717;
+  --color-foreground-muted: #737373;
+  --color-foreground-subtle: #a3a3a3;
 
-  /* Colors */
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-border: hsl(var(--border));
+  --color-border: #e5e5e5;
+  --color-border-hover: #d4d4d4;
+  --color-input: #ffffff;
+  --color-ring: #2563eb;
+
+  /* Primary */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-foreground: #ffffff;
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+
+  /* Secondary */
+  --color-secondary: #f5f5f5;
+  --color-secondary-hover: #e5e5e5;
+  --color-secondary-foreground: #171717;
+
+  /* Muted */
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #737373;
+
+  /* Accent */
+  --color-accent: #f5f5f5;
+  --color-accent-foreground: #171717;
+
+  /* Destructive */
+  --color-destructive: #dc2626;
+  --color-destructive-hover: #b91c1c;
+  --color-destructive-foreground: #ffffff;
+
+  /* Status Colors */
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-warning: #ca8a04;
+  --color-warning-bg: #fefce8;
+  --color-info: #0891b2;
+  --color-info-bg: #ecfeff;
 
   /* Border Radius */
   --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
+  --radius-base: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Sidebar */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --header-height: 64px;
 }
 
-/* Base Colors */
-@layer base {
-  :root {
-    --background: 0 0% 98%;
-    --foreground: 222 47% 11%;
+/* ============================================================================
+ * BASE STYLES
+ * ============================================================================ */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+* {
+  border-color: var(--color-border);
+}
 
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
+body {
+  font-family: var(--font-family-sans);
+  background-color: var(--color-surface);
+  color: var(--color-foreground);
+}
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+/* ============================================================================
+ * SCROLLBAR STYLES
+ * ============================================================================ */
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 47% 11%;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-    --radius: 0.5rem;
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* ============================================================================
+ * UTILITY CLASSES
+ * ============================================================================ */
+
+/* Focus ring */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+/* Card styling */
+.admin-card {
+  @apply bg-white rounded-lg border shadow-sm;
+}
+
+/* Status badges */
+.status-draft {
+  @apply bg-gray-100 text-gray-700;
+}
+
+.status-published {
+  @apply bg-green-100 text-green-700;
+}
+
+.status-archived {
+  @apply bg-amber-100 text-amber-700;
+}
+
+/* ============================================================================
+ * ANIMATIONS
+ * ============================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-/* Base Styles */
-@layer base {
-  * {
-    border-color: hsl(var(--border));
+@keyframes slideUp {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
   }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-/* Utility Classes */
-@layer utilities {
-  .admin-container {
-    max-width: 1400px;
-    margin-inline: auto;
-    padding-inline: 1.5rem;
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
   }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.2s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* ============================================================================
+ * DIALOG ANIMATIONS (for Radix UI Dialog)
+ * ============================================================================ */
+
+@keyframes dialogOverlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialogOverlayHide {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dialogContentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialogContentHide {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+}
+
+[data-state="open"].dialog-overlay {
+  animation: dialogOverlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-state="closed"].dialog-overlay {
+  animation: dialogOverlayHide 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-state="open"].dialog-content {
+  animation: dialogContentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-state="closed"].dialog-content {
+  animation: dialogContentHide 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
